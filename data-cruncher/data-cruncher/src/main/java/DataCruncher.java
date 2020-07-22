@@ -1,12 +1,13 @@
+import javax.xml.transform.Result;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataCruncher {
+
+    private static Object Comparators;
 
     // do not modify this method - just use it to get all the Transactions that are in scope for the exercise
     public List<Transaction> readAllTransactions() throws Exception {
@@ -42,52 +43,73 @@ public class DataCruncher {
 
     // task 1
     public Set<String> getUniqueMerchantIds() throws Exception {
-        return Set.of();
+        List<Transaction> users = this.readAllTransactions();
+        return users.stream()
+                    .map(Transaction::getMerchantId)
+                    .collect(Collectors.toSet());
     }
 
     // task 2
     public long getTotalNumberOfFraudulentTransactions() throws Exception {
-        return 0;
+        return readAllTransactions().stream().filter(Transaction::isFraud).count();
     }
 
     // task 3
     public long getTotalNumberOfTransactions(boolean isFraud) throws Exception {
-        return 0;
+        return readAllTransactions().stream().filter(bol -> bol.isFraud() == isFraud).count();
+
     }
 
     // task 4
     public Set<Transaction> getFraudulentTransactionsForMerchantId(String merchantId) throws Exception {
-        return Set.of();
+        return readAllTransactions().stream()
+                .filter(transaction -> transaction.getMerchantId().equals(merchantId) && transaction.isFraud())
+                .collect(Collectors.toSet());
     }
 
     // task 5
     public Set<Transaction> getTransactionsForMerchantId(String merchantId, boolean isFraud) throws Exception {
-        return Set.of();
+        return readAllTransactions().stream()
+                .filter(transaction -> transaction.getMerchantId().equals(merchantId) && transaction.isFraud()==isFraud)
+                .collect(Collectors.toSet());
     }
 
     // task 6
     public List<Transaction> getAllTransactionsSortedByAmount() throws Exception {
-        return List.of();
+        return readAllTransactions().stream().sorted(Comparator.comparing(Transaction::getAmount).reversed()).collect(Collectors.toList());
     }
 
     // task 7
     public double getFraudPercentageForMen() throws Exception {
-        return 0.0;
+        double fraud_men = readAllTransactions()
+                .stream()
+                .filter(transaction -> transaction.getGender().equals("M") & transaction.isFraud())
+                .count();
+        return fraud_men/getTotalNumberOfFraudulentTransactions();
     }
 
     // task 8
-    public Set<Transaction> getCustomerIdsWithNumberOfFraudulentTransactions(int numberOfFraudulentTransactions) throws Exception {
-        return Set.of();
+    public Set<String> getCustomerIdsWithNumberOfFraudulentTransactions(int numberOfFraudulentTransactions) throws Exception {
+        return readAllTransactions().stream().filter(Transaction::isFraud)
+                .collect(Collectors.groupingBy(Transaction::getCustomerId, Collectors.counting()))
+                .entrySet().stream().filter(m -> m.getValue()>=numberOfFraudulentTransactions)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).keySet();
     }
 
     // task 9
     public Map<String, Integer> getCustomerIdToNumberOfTransactions() throws Exception {
-        return Map.of();
+        return readAllTransactions().stream().filter(Transaction::isFraud)
+                .collect(Collectors.groupingBy(Transaction::getCustomerId, Collectors.counting()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().intValue()));
     }
 
     // task 10
     public Map<String, Double> getMerchantIdToTotalAmountOfFraudulentTransactions() throws Exception {
-        return Map.of();
+        return readAllTransactions().stream().filter(Transaction::isFraud)
+                .collect(Collectors.groupingBy(Transaction::getMerchantId, Collectors.counting()))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().doubleValue()));
     }
 
     // bonus
@@ -95,10 +117,13 @@ public class DataCruncher {
         return 1.0;
     }
 
-    public static void main(String[] args) throws Exception {
-        DataCruncher my_obj = new DataCruncher();
-        System.out.println(my_obj.readAllTransactions());
-
-        System.out.println("test");
-    }
+//    public static void main(String[] args) throws Exception {
+//        DataCruncher my_obj = new DataCruncher();
+//        "M1823072687"
+//        System.out.println(my_obj.getCustomerIdsWithNumberOfFraudulentTransactions(100));
+//        System.out.println(
+//
+//        my_obj.getAllTransactionsSortedByAmount().stream().filter(a -> a.getAmount()).sorted()
+//        );
+//    }
 }

@@ -1,5 +1,6 @@
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +10,7 @@ import static org.junit.Assert.fail;
 
 public class DataCruncherTest {
     private final DataCruncher dataCruncher = new DataCruncher();
+    private Integer Ordering;
 
     // ignore
     @Test
@@ -59,11 +61,25 @@ public class DataCruncherTest {
         assertEquals(102140, dataCruncher.getTransactionsForMerchantId("M348934600", false).size());
     }
 
+
+    private Boolean isSorted(List<Transaction> myList){
+        int i=1;
+        boolean sorted = true;
+        while(i<myList.size() & sorted){
+            if (myList.get(i).getAmount() <= myList.get(i-1).getAmount()){
+                i++;
+            }else{
+                sorted=false;
+            }
+        }
+        return sorted;
+    }
+
     // task6
     @Test
     public void getAllTransactionSortedByAmount() throws Exception {
         List<Transaction> allTransactionsSortedByAmount = dataCruncher.getAllTransactionsSortedByAmount();
-        fail();
+        assertEquals(true,isSorted(allTransactionsSortedByAmount));
     }
 
     // task7
@@ -76,21 +92,22 @@ public class DataCruncherTest {
     // task8
     @Test
     public void getCustomerIdsWithNumberOfFraudulentTransactions() throws Exception {
-        Set<Transaction> customerIdsWithNumberOfFraudulentTransactions = dataCruncher.getCustomerIdsWithNumberOfFraudulentTransactions(3);
-        fail();
+        assertEquals(76, dataCruncher.getCustomerIdsWithNumberOfFraudulentTransactions(100).size());
+        assertEquals(2119, dataCruncher.getCustomerIdsWithNumberOfFraudulentTransactions(80).size());
     }
 
     // task9
     @Test
     public void getCustomerIdToNumberOfTransactions() throws Exception {
-        Map<String, Integer> customerIdToNumberOfTransactions = dataCruncher.getCustomerIdToNumberOfTransactions();
-        fail();
+        assertEquals((long)141,(long) dataCruncher.getCustomerIdToNumberOfTransactions().get("C1275518867"));
+        assertEquals((long)79,(long) dataCruncher.getCustomerIdToNumberOfTransactions().get("C572671067"));
+
     }
 
     // task10
     @Test
     public void getMerchantIdToTotalAmountOfFraudulentTransactions() throws Exception {
-        Map<String, Double> merchantIdToTotalAmountOfFraudulentTransactions = dataCruncher.getMerchantIdToTotalAmountOfFraudulentTransactions();
-        fail();
+        assertEquals( (double)3383, dataCruncher.getMerchantIdToTotalAmountOfFraudulentTransactions().get("M1053599405"), 0.01);
+        assertEquals( (double)105, dataCruncher.getMerchantIdToTotalAmountOfFraudulentTransactions().get("M1416436880"), 0.01);
     }
 }
